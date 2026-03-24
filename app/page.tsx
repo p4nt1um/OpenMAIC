@@ -18,6 +18,7 @@ import {
   Monitor,
   BotOff,
   ChevronUp,
+  BookOpen,
 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { createLogger } from '@/lib/logger';
@@ -27,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { SettingsDialog } from '@/components/settings';
 import { GenerationToolbar } from '@/components/generation/generation-toolbar';
 import { AgentBar } from '@/components/agent/agent-bar';
+import { LearningAnalyticsDialog } from '@/components/learning-analytics';
 import { useTheme } from '@/lib/hooks/use-theme';
 import { nanoid } from 'nanoid';
 import { storePdfBlob } from '@/lib/utils/image-storage';
@@ -76,6 +78,7 @@ function HomePage() {
   const [settingsSection, setSettingsSection] = useState<
     import('@/lib/types/settings').SettingsSection | undefined
   >(undefined);
+  const [learningAnalyticsOpen, setLearningAnalyticsOpen] = useState(false);
 
   // Draft cache for requirement text
   const { cachedValue: cachedRequirement, updateCache: updateRequirementCache } =
@@ -437,6 +440,20 @@ function HomePage() {
 
         <div className="w-[1px] h-4 bg-gray-200 dark:bg-gray-700" />
 
+        {/* Learning Analytics Button */}
+        <div className="relative">
+          <button
+            onClick={() => setLearningAnalyticsOpen(true)}
+            className={cn(
+              'p-2 rounded-full text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 hover:shadow-sm transition-all group',
+            )}
+          >
+            <BookOpen className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="w-[1px] h-4 bg-gray-200 dark:bg-gray-700" />
+
         {/* Settings Button */}
         <div className="relative">
           <button
@@ -468,6 +485,10 @@ function HomePage() {
           if (!open) setSettingsSection(undefined);
         }}
         initialSection={settingsSection}
+      />
+      <LearningAnalyticsDialog
+        open={learningAnalyticsOpen}
+        onOpenChange={setLearningAnalyticsOpen}
       />
 
       {/* ═══ Background Decor ═══ */}

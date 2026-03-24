@@ -9,6 +9,8 @@ import { ThemeProvider } from '@/lib/hooks/use-theme';
 import { I18nProvider } from '@/lib/hooks/use-i18n';
 import { Toaster } from '@/components/ui/sonner';
 import { ServerProvidersInit } from '@/components/server-providers-init';
+import { AuthGuard } from '@/components/auth-guard';
+import Script from 'next/script';
 
 const inter = localFont({
   src: '../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
@@ -17,7 +19,7 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'OpenMAIC',
+  title: 'uCare智能体平台',
   description:
     'The open-source AI interactive classroom. Upload a PDF to instantly generate an immersive, multi-agent learning experience.',
 };
@@ -33,10 +35,13 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <Script src="https://cdn.jsdelivr.net/npm/jsencrypt@3.3.2/bin/jsencrypt.min.js" strategy="beforeInteractive" />
         <ThemeProvider>
           <I18nProvider>
             <ServerProvidersInit />
-            {children}
+            <AuthGuard>
+              {children}
+            </AuthGuard>
             <Toaster position="top-center" />
           </I18nProvider>
         </ThemeProvider>

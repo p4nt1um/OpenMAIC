@@ -13,16 +13,26 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Trash2, AlertTriangle } from 'lucide-react';
+import { Loader2, Trash2, AlertTriangle, LogOut } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { clearDatabase } from '@/lib/utils/database';
 import { toast } from 'sonner';
 import { createLogger } from '@/lib/logger';
+import { useAuthStore } from '@/lib/store/auth';
+import { useRouter } from 'next/navigation';
+import { API_CONFIG } from '@/lib/api-config';
 
 const log = createLogger('GeneralSettings');
 
 export function GeneralSettings() {
   const { t } = useI18n();
+  const { logout } = useAuthStore();
+  const router = useRouter();
+
+  // API配置状态
+  const [apiBaseUrl, setApiBaseUrl] = useState(API_CONFIG.BASE_URL);
+  const [captchaEnabled, setCaptchaEnabled] = useState(true);
+  const [savingApiConfig, setSavingApiConfig] = useState(false);
 
   // Clear cache state
   const [showClearDialog, setShowClearDialog] = useState(false);
@@ -56,6 +66,26 @@ export function GeneralSettings() {
     }
   }, [isConfirmValid, t]);
 
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+    toast.success('退出登录成功');
+  };
+
+  const handleSaveApiConfig = async () => {
+    setSavingApiConfig(true);
+    try {
+      // 保存到localStorage
+      localStorage.setItem('api_base_url', apiBaseUrl);
+      localStorage.setItem('captcha_enabled', captchaEnabled.toString());
+      toast.success('API配置保存成功，请刷新页面生效');
+    } catch (error) {
+      toast.error('API配置保存失败');
+    } finally {
+      setSavingApiConfig(false);
+    }
+  };
+
   const clearCacheItems =
     t('settings.clearCacheConfirmItems').split('、').length > 1
       ? t('settings.clearCacheConfirmItems').split('、')
@@ -63,6 +93,8 @@ export function GeneralSettings() {
 
   return (
     <div className="flex flex-col gap-8">
+
+
       {/* Danger Zone - Clear Cache */}
       <div className="relative rounded-xl border border-destructive/30 bg-destructive/[0.03] dark:bg-destructive/[0.06] overflow-hidden">
         {/* Subtle diagonal stripe pattern for danger emphasis */}
@@ -107,6 +139,38 @@ export function GeneralSettings() {
             >
               <Trash2 className="w-3.5 h-3.5 mr-1.5" />
               {t('settings.clearCache')}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Logout Section */}
+      <div className="relative rounded-xl border border-muted bg-muted/30 overflow-hidden">
+        <div className="relative p-4 space-y-4">
+          {/* Header */}
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-md bg-blue-100 text-blue-600">
+              <LogOut className="w-4 h-4" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground">账户管理</h3>
+          </div>
+
+          {/* Content */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">退出登录</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                退出当前账户并返回登录页面
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-3.5 h-3.5 mr-1.5" />
+              退出登录
             </Button>
           </div>
         </div>
